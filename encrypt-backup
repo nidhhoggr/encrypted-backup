@@ -33,7 +33,6 @@ BACKUP_SOURCE=$(readlink -f $1)
 BACKUP_DESTINATION=$(readlink -f $2)
 PASSWORD_FILE=$(readlink -f $3)
 # convert source path to string. Es.: /path/to/Source Dir to path-to-Source-Dir
-FILENAME_PREFIX=$(echo $BACKUP_SOURCE | sed -e 's/\//-/g;s/ /-/g;s/^-\(.*\)-$/\1/')
 
 # check required arguments
 if [ ! -d "$BACKUP_SOURCE" ]; then
@@ -50,7 +49,8 @@ if [ ! -f "$PASSWORD_FILE" ]; then
 fi
 
 printf "\n[${YELLOW}${ICON_WAIT}${NOCOLOR}] Compressing source path, please wait...\n"
-BACKUP_FILENAME="${BACKUP_DESTINATION}/eb${FILENAME_PREFIX}-$(date +%d%m%Y-%H%M).tar"
+BACKUP_BASENAME=$(basename $BACKUP_SOURCE)
+BACKUP_FILENAME="${BACKUP_DESTINATION}/${BACKUP_BASENAME}.tar"
 printf "[${GREEN}${ICON_OK}${NOCOLOR}] Source path compressed.\n\n"
 printf "\n[${YELLOW}${ICON_WAIT}${NOCOLOR}] Attempting to backup to file: ${YELLOW}${BACKUP_FILENAME}${NOCOLOR}\n"
 if tar -c --recursion "$BACKUP_SOURCE" | gpg --yes --batch -c --passphrase-fd 3 -o "$BACKUP_FILENAME" 3< $PASSWORD_FILE; then
